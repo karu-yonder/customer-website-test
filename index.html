@@ -9,7 +9,7 @@
 
       function validateEnvironment() {
         const env = getQueryParam("env");
-        const ap = getQueryParam("ap");
+        const id = getQueryParam("id");
         const allowedEnvs = ["dev", "staging", "prod"];
 
         let hasErrors = false;
@@ -25,11 +25,11 @@
           });
         }
 
-        if (!ap) {
+        if (!id) {
           hasErrors = true;
           errorMessages.push({
-            title: "AP Parameter Required",
-            message: "Please add an 'ap' query parameter to the URL",
+            title: "ID Parameter Required",
+            message: "Please add an 'id' query parameter to the URL",
             background: "#ff9500",
           });
         }
@@ -41,7 +41,7 @@
 
         const title = document.createElement("h3");
         title.textContent =
-          env && ap ? "Update Parameters" : "Missing Required Parameters";
+          env && id ? "Update Parameters" : "Missing Required Parameters";
         title.style.cssText = "margin: 0 0 15px 0; color: white;";
         container.appendChild(title);
 
@@ -70,40 +70,40 @@
 
         container.appendChild(envGroup);
 
-        // AP input - always show
-        const apGroup = document.createElement("div");
-        apGroup.style.cssText = "margin-bottom: 15px;";
+        // ID input - always show
+        const idGroup = document.createElement("div");
+        idGroup.style.cssText = "margin-bottom: 15px;";
 
-        const apLabel = document.createElement("label");
-        apLabel.textContent = "AP Parameter:";
-        apLabel.style.cssText =
+        const idLabel = document.createElement("label");
+        idLabel.textContent = "ID Parameter:";
+        idLabel.style.cssText =
           "display: block; margin-bottom: 5px; color: white;";
-        apGroup.appendChild(apLabel);
+        idGroup.appendChild(idLabel);
 
-        const apInput = document.createElement("input");
-        apInput.type = "text";
-        apInput.placeholder = "Enter AP value...";
-        apInput.value = ap || "";
-        apInput.style.cssText =
+        const idInput = document.createElement("input");
+        idInput.type = "text";
+        idInput.placeholder = "Enter ID value...";
+        idInput.value = id || "";
+        idInput.style.cssText =
           "width: 100%; padding: 8px; border-radius: 4px; border: none; margin-bottom: 5px; box-sizing: border-box;";
-        apGroup.appendChild(apInput);
+        idGroup.appendChild(idInput);
 
-        container.appendChild(apGroup);
+        container.appendChild(idGroup);
 
         // Update button
         const updateBtn = document.createElement("button");
         updateBtn.textContent =
-          env && ap ? "Update Parameters" : "Add Parameters";
+          env && id ? "Update Parameters" : "Add Parameters";
         updateBtn.style.cssText =
           "background: #4CAF50; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 14px; width: 100%;";
         updateBtn.onclick = function () {
           const newEnv = container.querySelector("select")?.value || env;
-          const newAp = container.querySelector("input")?.value || ap;
+          const newId = container.querySelector("input")?.value || id;
 
-          if (newEnv && newAp) {
+          if (newEnv && newId) {
             const url = new URL(window.location);
             url.searchParams.set("env", newEnv);
-            url.searchParams.set("ap", newAp);
+            url.searchParams.set("id", newId);
             window.location.href = url.toString();
           } else {
             alert("Please fill in all required fields");
@@ -144,11 +144,9 @@
       }
 
       document.addEventListener("DOMContentLoaded", function () {
-        // Always show the form for parameter management
         validateEnvironment();
 
-        // Only load widget script if validation passes
-        if (getQueryParam("env") && getQueryParam("ap")) {
+        if (getQueryParam("env") && getQueryParam("id")) {
           loadWidgetScript();
         }
       });
