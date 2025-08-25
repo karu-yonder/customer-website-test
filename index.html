@@ -34,96 +34,87 @@
           });
         }
 
-        if (hasErrors) {
-          const container = document.createElement("div");
-          container.style.cssText =
-            "position: fixed; top: 20px; left: 20px; z-index: 10000; background: rgba(0,0,0,0.9); padding: 20px; border-radius: 12px; color: white; font-family: Arial, sans-serif; min-width: 400px;";
+        // Always show the form for parameter management
+        const container = document.createElement("div");
+        container.style.cssText =
+          "position: fixed; top: 20px; left: 20px; z-index: 10000; background: rgba(0,0,0,0.9); padding: 20px; border-radius: 12px; color: white; font-family: Arial, sans-serif; min-width: 400px;";
 
-          const title = document.createElement("h3");
-          title.textContent =
-            env && ap ? "Update Parameters" : "Missing Required Parameters";
-          title.style.cssText = "margin: 0 0 15px 0; color: white;";
-          container.appendChild(title);
+        const title = document.createElement("h3");
+        title.textContent =
+          env && ap ? "Update Parameters" : "Missing Required Parameters";
+        title.style.cssText = "margin: 0 0 15px 0; color: white;";
+        container.appendChild(title);
 
-          // Environment input
-          if (!env || !allowedEnvs.includes(env)) {
-            const envGroup = document.createElement("div");
-            envGroup.style.cssText = "margin-bottom: 15px;";
+        // Environment input - always show
+        const envGroup = document.createElement("div");
+        envGroup.style.cssText = "margin-bottom: 15px;";
 
-            const envLabel = document.createElement("label");
-            envLabel.textContent = "Environment:";
-            envLabel.style.cssText =
-              "display: block; margin-bottom: 5px; color: white;";
-            envGroup.appendChild(envLabel);
+        const envLabel = document.createElement("label");
+        envLabel.textContent = "Environment:";
+        envLabel.style.cssText =
+          "display: block; margin-bottom: 5px; color: white;";
+        envGroup.appendChild(envLabel);
 
-            const envSelect = document.createElement("select");
-            envSelect.style.cssText =
-              "width: 100%; padding: 8px; border-radius: 4px; border: none; margin-bottom: 5px;";
-            envSelect.innerHTML = `
-              <option value="">Select environment...</option>
-              <option value="dev" ${
-                env === "dev" ? "selected" : ""
-              }>dev</option>
-              <option value="staging" ${
-                env === "staging" ? "selected" : ""
-              }>staging</option>
-              <option value="prod" ${
-                env === "prod" ? "selected" : ""
-              }>prod</option>
-            `;
-            envGroup.appendChild(envSelect);
+        const envSelect = document.createElement("select");
+        envSelect.style.cssText =
+          "width: 100%; padding: 8px; border-radius: 4px; border: none; margin-bottom: 5px;";
+        envSelect.innerHTML = `
+          <option value="">Select environment...</option>
+          <option value="dev" ${env === "dev" ? "selected" : ""}>dev</option>
+          <option value="staging" ${
+            env === "staging" ? "selected" : ""
+          }>staging</option>
+          <option value="prod" ${env === "prod" ? "selected" : ""}>prod</option>
+        `;
+        envGroup.appendChild(envSelect);
 
-            container.appendChild(envGroup);
+        container.appendChild(envGroup);
+
+        // AP input - always show
+        const apGroup = document.createElement("div");
+        apGroup.style.cssText = "margin-bottom: 15px;";
+
+        const apLabel = document.createElement("label");
+        apLabel.textContent = "AP Parameter:";
+        apLabel.style.cssText =
+          "display: block; margin-bottom: 5px; color: white;";
+        apGroup.appendChild(apLabel);
+
+        const apInput = document.createElement("input");
+        apInput.type = "text";
+        apInput.placeholder = "Enter AP value...";
+        apInput.value = ap || "";
+        apInput.style.cssText =
+          "width: 100%; padding: 8px; border-radius: 4px; border: none; margin-bottom: 5px; box-sizing: border-box;";
+        apGroup.appendChild(apInput);
+
+        container.appendChild(apGroup);
+
+        // Update button
+        const updateBtn = document.createElement("button");
+        updateBtn.textContent =
+          env && ap ? "Update Parameters" : "Add Parameters";
+        updateBtn.style.cssText =
+          "background: #4CAF50; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 14px; width: 100%;";
+        updateBtn.onclick = function () {
+          const newEnv = container.querySelector("select")?.value || env;
+          const newAp = container.querySelector("input")?.value || ap;
+
+          if (newEnv && newAp) {
+            const url = new URL(window.location);
+            url.searchParams.set("env", newEnv);
+            url.searchParams.set("ap", newAp);
+            window.location.href = url.toString();
+          } else {
+            alert("Please fill in all required fields");
           }
+        };
+        container.appendChild(updateBtn);
 
-          // AP input
-          if (!ap) {
-            const apGroup = document.createElement("div");
-            apGroup.style.cssText = "margin-bottom: 15px;";
+        document.body.appendChild(container);
 
-            const apLabel = document.createElement("label");
-            apLabel.textContent = "AP Parameter:";
-            apLabel.style.cssText =
-              "display: block; margin-bottom: 5px; color: white;";
-            apGroup.appendChild(apLabel);
-
-            const apInput = document.createElement("input");
-            apInput.type = "text";
-            apInput.placeholder = "Enter AP value...";
-            apInput.value = ap || "";
-            apInput.style.cssText =
-              "width: 100%; padding: 8px; border-radius: 4px; border: none; margin-bottom: 5px; box-sizing: border-box;";
-            apGroup.appendChild(apInput);
-
-            container.appendChild(apGroup);
-          }
-
-          // Update button
-          const updateBtn = document.createElement("button");
-          updateBtn.textContent =
-            env && ap ? "Update Parameters" : "Add Parameters";
-          updateBtn.style.cssText =
-            "background: #4CAF50; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 14px; width: 100%;";
-          updateBtn.onclick = function () {
-            const newEnv = container.querySelector("select")?.value || env;
-            const newAp = container.querySelector("input")?.value || ap;
-
-            if (newEnv && newAp) {
-              const url = new URL(window.location);
-              url.searchParams.set("env", newEnv);
-              url.searchParams.set("ap", newAp);
-              window.location.href = url.toString();
-            } else {
-              alert("Please fill in all required fields");
-            }
-          };
-          container.appendChild(updateBtn);
-
-          document.body.appendChild(container);
-          return false;
-        }
-
-        return true;
+        // Return validation result for script loading logic
+        return hasErrors;
       }
 
       const idFromUrl = getQueryParam("id") || "21";
@@ -153,7 +144,11 @@
       }
 
       document.addEventListener("DOMContentLoaded", function () {
-        if (validateEnvironment()) {
+        // Always show the form for parameter management
+        validateEnvironment();
+
+        // Only load widget script if validation passes
+        if (getQueryParam("env") && getQueryParam("ap")) {
           loadWidgetScript();
         }
       });
