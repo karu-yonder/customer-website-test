@@ -40,7 +40,8 @@
             "position: fixed; top: 20px; left: 20px; z-index: 10000; background: rgba(0,0,0,0.9); padding: 20px; border-radius: 12px; color: white; font-family: Arial, sans-serif; min-width: 400px;";
 
           const title = document.createElement("h3");
-          title.textContent = "Missing Required Parameters";
+          title.textContent =
+            env && ap ? "Update Parameters" : "Missing Required Parameters";
           title.style.cssText = "margin: 0 0 15px 0; color: white;";
           container.appendChild(title);
 
@@ -60,9 +61,15 @@
               "width: 100%; padding: 8px; border-radius: 4px; border: none; margin-bottom: 5px;";
             envSelect.innerHTML = `
               <option value="">Select environment...</option>
-              <option value="dev">dev</option>
-              <option value="staging">staging</option>
-              <option value="prod">prod</option>
+              <option value="dev" ${
+                env === "dev" ? "selected" : ""
+              }>dev</option>
+              <option value="staging" ${
+                env === "staging" ? "selected" : ""
+              }>staging</option>
+              <option value="prod" ${
+                env === "prod" ? "selected" : ""
+              }>prod</option>
             `;
             envGroup.appendChild(envSelect);
 
@@ -83,6 +90,7 @@
             const apInput = document.createElement("input");
             apInput.type = "text";
             apInput.placeholder = "Enter AP value...";
+            apInput.value = ap || "";
             apInput.style.cssText =
               "width: 100%; padding: 8px; border-radius: 4px; border: none; margin-bottom: 5px; box-sizing: border-box;";
             apGroup.appendChild(apInput);
@@ -92,7 +100,8 @@
 
           // Update button
           const updateBtn = document.createElement("button");
-          updateBtn.textContent = "Update URL";
+          updateBtn.textContent =
+            env && ap ? "Update Parameters" : "Add Parameters";
           updateBtn.style.cssText =
             "background: #4CAF50; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 14px; width: 100%;";
           updateBtn.onclick = function () {
@@ -120,7 +129,6 @@
       const idFromUrl = getQueryParam("id") || "21";
       window.YONDER__CLIENT_CODE = idFromUrl;
 
-      // Dynamically load the correct widget script based on environment
       function loadWidgetScript() {
         const env = getQueryParam("env");
         let scriptUrl;
