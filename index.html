@@ -2,8 +2,154 @@
 <html>
   <head>
     <script>
-      window.YONDER__CLIENT_CODE = "21";
+      function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+      }
+
+      function validateEnvironment() {
+        const env = getQueryParam("env");
+        const ap = getQueryParam("ap");
+        const allowedEnvs = ["dev", "staging", "prod"];
+
+        let hasErrors = false;
+        const errorMessages = [];
+
+        if (!env || !allowedEnvs.includes(env)) {
+          hasErrors = true;
+          errorMessages.push({
+            title: "Environment Required",
+            message:
+              "Please add an environment query parameter: ?env=dev, ?env=staging, or ?env=prod",
+            background: "#ff6b6b",
+          });
+        }
+
+        if (!ap) {
+          hasErrors = true;
+          errorMessages.push({
+            title: "AP Parameter Required",
+            message: "Please add an 'ap' query parameter to the URL",
+            background: "#ff9500",
+          });
+        }
+
+        if (hasErrors) {
+          const container = document.createElement("div");
+          container.style.cssText =
+            "position: fixed; top: 20px; left: 20px; z-index: 10000; background: rgba(0,0,0,0.9); padding: 20px; border-radius: 12px; color: white; font-family: Arial, sans-serif; min-width: 400px;";
+
+          const title = document.createElement("h3");
+          title.textContent = "Missing Required Parameters";
+          title.style.cssText = "margin: 0 0 15px 0; color: white;";
+          container.appendChild(title);
+
+          // Environment input
+          if (!env || !allowedEnvs.includes(env)) {
+            const envGroup = document.createElement("div");
+            envGroup.style.cssText = "margin-bottom: 15px;";
+
+            const envLabel = document.createElement("label");
+            envLabel.textContent = "Environment:";
+            envLabel.style.cssText =
+              "display: block; margin-bottom: 5px; color: white;";
+            envGroup.appendChild(envLabel);
+
+            const envSelect = document.createElement("select");
+            envSelect.style.cssText =
+              "width: 100%; padding: 8px; border-radius: 4px; border: none; margin-bottom: 5px;";
+            envSelect.innerHTML = `
+              <option value="">Select environment...</option>
+              <option value="dev">dev</option>
+              <option value="staging">staging</option>
+              <option value="prod">prod</option>
+            `;
+            envGroup.appendChild(envSelect);
+
+            container.appendChild(envGroup);
+          }
+
+          // AP input
+          if (!ap) {
+            const apGroup = document.createElement("div");
+            apGroup.style.cssText = "margin-bottom: 15px;";
+
+            const apLabel = document.createElement("label");
+            apLabel.textContent = "AP Parameter:";
+            apLabel.style.cssText =
+              "display: block; margin-bottom: 5px; color: white;";
+            apGroup.appendChild(apLabel);
+
+            const apInput = document.createElement("input");
+            apInput.type = "text";
+            apInput.placeholder = "Enter AP value...";
+            apInput.style.cssText =
+              "width: 100%; padding: 8px; border-radius: 4px; border: none; margin-bottom: 5px; box-sizing: border-box;";
+            apGroup.appendChild(apInput);
+
+            container.appendChild(apGroup);
+          }
+
+          // Update button
+          const updateBtn = document.createElement("button");
+          updateBtn.textContent = "Update URL";
+          updateBtn.style.cssText =
+            "background: #4CAF50; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 14px; width: 100%;";
+          updateBtn.onclick = function () {
+            const newEnv = container.querySelector("select")?.value || env;
+            const newAp = container.querySelector("input")?.value || ap;
+
+            if (newEnv && newAp) {
+              const url = new URL(window.location);
+              url.searchParams.set("env", newEnv);
+              url.searchParams.set("ap", newAp);
+              window.location.href = url.toString();
+            } else {
+              alert("Please fill in all required fields");
+            }
+          };
+          container.appendChild(updateBtn);
+
+          document.body.appendChild(container);
+          return false;
+        }
+
+        return true;
+      }
+
+      const idFromUrl = getQueryParam("id") || "21";
+      window.YONDER__CLIENT_CODE = idFromUrl;
+
+      // Dynamically load the correct widget script based on environment
+      function loadWidgetScript() {
+        const env = getQueryParam("env");
+        let scriptUrl;
+
+        switch (env) {
+          case "dev":
+            scriptUrl = "https://dev.widget.yonderhq.com/main.js";
+            break;
+          case "staging":
+            scriptUrl = "https://staging.widget.yonderhq.com/main.js";
+            break;
+          case "prod":
+            scriptUrl = "https://widget.yonderhq.com/main.js";
+            break;
+          default:
+            scriptUrl = "https://staging.widget.yonderhq.com/main.js";
+        }
+
+        const script = document.createElement("script");
+        script.src = scriptUrl;
+        document.head.appendChild(script);
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        if (validateEnvironment()) {
+          loadWidgetScript();
+        }
+      });
     </script>
-    <script src="https://staging.widget.yonderhq.com/main.js"></script>
   </head>
+  <body></body>
 </html>
