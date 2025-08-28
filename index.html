@@ -115,10 +115,15 @@
       // Get current subpath from URL
       function getCurrentSubpath() {
         const path = window.location.pathname;
-        const basePath = path
-          .replace("/customer-website-test", "")
-          .replace(/\/$/, "");
-        return basePath || "";
+        // Extract subpath after the repository name
+        const repoPath = "/customer-website-test";
+        if (path.startsWith(repoPath)) {
+          const subpath = path
+            .substring(repoPath.length)
+            .replace(/^\/+|\/+$/g, "");
+          return subpath;
+        }
+        return "";
       }
 
       // Update the URL path dynamically
@@ -132,8 +137,8 @@
           return;
         }
 
-        // Build the new URL
-        let newPath = window.location.origin;
+        // Build the new URL with full repository path
+        let newPath = window.location.origin + "/customer-website-test";
 
         // Add subpath if provided
         if (subpath) {
@@ -166,7 +171,8 @@
 
         if (subpath) {
           const cleanSubpath = subpath.replace(/^\/+|\/+$/g, "");
-          const fullPath = window.location.origin + "/" + cleanSubpath;
+          const fullPath =
+            window.location.origin + "/customer-website-test/" + cleanSubpath;
           pathDisplay.textContent = fullPath;
           currentPathDiv.style.display = "block";
         } else {
@@ -239,6 +245,30 @@
       // Handle browser back/forward buttons
       window.addEventListener("popstate", function () {
         initializeForm();
+      });
+
+      // Handle page refresh - redirect to base repository URL
+      let isPageVisible = true;
+
+      // Detect when page becomes hidden (refresh, close, etc.)
+      document.addEventListener("visibilitychange", function () {
+        if (document.hidden) {
+          isPageVisible = false;
+        }
+      });
+
+      // When page becomes visible again, check if we need to redirect
+      window.addEventListener("focus", function () {
+        if (!isPageVisible) {
+          const currentPath = window.location.pathname;
+          const basePath = "/customer-website-test";
+
+          // If we're on a subpath and this was a refresh, redirect to base
+          if (currentPath !== basePath && currentPath !== basePath + "/") {
+            window.location.href = window.location.origin + basePath;
+          }
+          isPageVisible = true;
+        }
       });
 
       // Initialize when page loads
