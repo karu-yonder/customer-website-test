@@ -1,129 +1,185 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <title>Customer Website Test - Dynamic Subpath</title>
+    <style>
+      .control-panel {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 10000;
+        background: rgba(0, 0, 0, 0.9);
+        padding: 20px;
+        border-radius: 12px;
+        color: white;
+        font-family: Arial, sans-serif;
+        min-width: 400px;
+      }
+
+      .form-group {
+        margin-bottom: 15px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 5px;
+        color: white;
+      }
+
+      input,
+      select {
+        width: 100%;
+        padding: 8px;
+        border-radius: 4px;
+        border: none;
+        margin-bottom: 5px;
+        box-sizing: border-box;
+      }
+
+      button {
+        background: #4caf50;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        width: 100%;
+        margin-bottom: 10px;
+      }
+
+      .current-path {
+        margin-bottom: 15px;
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+      }
+
+      .path-examples {
+        margin-top: 15px;
+        font-size: 12px;
+        opacity: 0.8;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="control-panel">
+      <h3>Dynamic Subpath Tester</h3>
+
+      <div class="form-group">
+        <label for="env">Environment:</label>
+        <select id="env">
+          <option value="">Select environment...</option>
+          <option value="dev">dev</option>
+          <option value="staging">staging</option>
+          <option value="prod">prod</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="id">ID Parameter:</label>
+        <input type="text" id="id" placeholder="Enter ID value..." />
+      </div>
+
+      <div class="form-group">
+        <label for="subpath">Subpath:</label>
+        <input
+          type="text"
+          id="subpath"
+          placeholder="Enter subpath (e.g., about, products, contact)..."
+        />
+      </div>
+
+      <div id="currentPath" class="current-path" style="display: none">
+        <strong>Current Path:</strong> <span id="pathDisplay"></span><br />
+        <small>This URL will work for targeted message testing</small>
+      </div>
+
+      <button onclick="updatePath()">Update Chatbot</button>
+
+      <div class="path-examples">
+        <strong>Examples:</strong><br />
+        • about → your-domain.com/about<br />
+        • products/feature → your-domain.com/products/feature<br />
+        • contact/support → your-domain.com/contact/support
+      </div>
+    </div>
+
     <script>
       function getQueryParam(param) {
         const urlParams = new URLSearchParams(window.location.search);
         return urlParams.get(param);
       }
 
-      function validateEnvironment() {
-        const env = getQueryParam("env");
-        const id = getQueryParam("id");
-        const allowedEnvs = ["dev", "staging", "prod"];
+      function getCurrentSubpath() {
+        const path = window.location.pathname;
 
-        let hasErrors = false;
-        const errorMessages = [];
-
-        if (!env || !allowedEnvs.includes(env)) {
-          hasErrors = true;
-          errorMessages.push({
-            title: "Environment Required",
-            message:
-              "Please add an environment query parameter: ?env=dev, ?env=staging, or ?env=prod",
-            background: "#ff6b6b",
-          });
+        const repoPath = "/customer-website-test";
+        if (path.startsWith(repoPath)) {
+          const subpath = path
+            .substring(repoPath.length)
+            .replace(/^\/+|\/+$/g, "");
+          return subpath;
         }
-
-        if (!id) {
-          hasErrors = true;
-          errorMessages.push({
-            title: "ID Parameter Required",
-            message: "Please add an 'id' query parameter to the URL",
-            background: "#ff9500",
-          });
-        }
-
-        // Always show the form for parameter management
-        const container = document.createElement("div");
-        container.style.cssText =
-          "position: fixed; top: 20px; left: 20px; z-index: 10000; background: rgba(0,0,0,0.9); padding: 20px; border-radius: 12px; color: white; font-family: Arial, sans-serif; min-width: 400px;";
-
-        const title = document.createElement("h3");
-        title.textContent =
-          env && id ? "Update Parameters" : "Missing Required Parameters";
-        title.style.cssText = "margin: 0 0 15px 0; color: white;";
-        container.appendChild(title);
-
-        // Environment input - always show
-        const envGroup = document.createElement("div");
-        envGroup.style.cssText = "margin-bottom: 15px;";
-
-        const envLabel = document.createElement("label");
-        envLabel.textContent = "Environment:";
-        envLabel.style.cssText =
-          "display: block; margin-bottom: 5px; color: white;";
-        envGroup.appendChild(envLabel);
-
-        const envSelect = document.createElement("select");
-        envSelect.style.cssText =
-          "width: 100%; padding: 8px; border-radius: 4px; border: none; margin-bottom: 5px;";
-        envSelect.innerHTML = `
-          <option value="">Select environment...</option>
-          <option value="dev" ${env === "dev" ? "selected" : ""}>dev</option>
-          <option value="staging" ${
-            env === "staging" ? "selected" : ""
-          }>staging</option>
-          <option value="prod" ${env === "prod" ? "selected" : ""}>prod</option>
-        `;
-        envGroup.appendChild(envSelect);
-
-        container.appendChild(envGroup);
-
-        // ID input - always show
-        const idGroup = document.createElement("div");
-        idGroup.style.cssText = "margin-bottom: 15px;";
-
-        const idLabel = document.createElement("label");
-        idLabel.textContent = "ID Parameter:";
-        idLabel.style.cssText =
-          "display: block; margin-bottom: 5px; color: white;";
-        idGroup.appendChild(idLabel);
-
-        const idInput = document.createElement("input");
-        idInput.type = "text";
-        idInput.placeholder = "Enter ID value...";
-        idInput.value = id || "";
-        idInput.style.cssText =
-          "width: 100%; padding: 8px; border-radius: 4px; border: none; margin-bottom: 5px; box-sizing: border-box;";
-        idGroup.appendChild(idInput);
-
-        container.appendChild(idGroup);
-
-        // Update button
-        const updateBtn = document.createElement("button");
-        updateBtn.textContent =
-          env && id ? "Update Parameters" : "Add Parameters";
-        updateBtn.style.cssText =
-          "background: #4CAF50; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 14px; width: 100%;";
-        updateBtn.onclick = function () {
-          const newEnv = container.querySelector("select")?.value || env;
-          const newId = container.querySelector("input")?.value || id;
-
-          if (newEnv && newId) {
-            const url = new URL(window.location);
-            url.searchParams.set("env", newEnv);
-            url.searchParams.set("id", newId);
-            window.location.href = url.toString();
-          } else {
-            alert("Please fill in all required fields");
-          }
-        };
-        container.appendChild(updateBtn);
-
-        document.body.appendChild(container);
-
-        // Return validation result for script loading logic
-        return hasErrors;
+        return "";
       }
 
-      const idFromUrl = getQueryParam("id") || "21";
-      window.YONDER__CLIENT_CODE = idFromUrl;
+      function updatePath() {
+        const env = document.getElementById("env").value;
+        const id = document.getElementById("id").value;
+        const subpath = document.getElementById("subpath").value.trim();
 
-      function loadWidgetScript() {
-        const env = getQueryParam("env");
+        if (!env || !id) {
+          alert("Please fill in Environment and ID fields");
+          return;
+        }
+
+        let newPath = window.location.origin + "/customer-website-test";
+
+        if (subpath) {
+          const cleanSubpath = subpath.replace(/^\/+|\/+$/g, "");
+          newPath += "/" + cleanSubpath;
+        }
+
+        newPath +=
+          "?env=" + encodeURIComponent(env) + "&id=" + encodeURIComponent(id);
+
+        // Update URL without redirecting (keeps same page loaded)
+        window.history.pushState({}, "", newPath);
+
+        // Reload the widget with new parameters
+        if (env && id) {
+          loadWidget(env, id);
+        }
+      }
+
+      function updatePathDisplay() {
+        const subpath = document.getElementById("subpath").value.trim();
+        const currentPathDiv = document.getElementById("currentPath");
+        const pathDisplay = document.getElementById("pathDisplay");
+
+        if (subpath) {
+          const cleanSubpath = subpath.replace(/^\/+|\/+$/g, "");
+          const fullPath =
+            window.location.origin + "/customer-website-test/" + cleanSubpath;
+          pathDisplay.textContent = fullPath;
+          currentPathDiv.style.display = "block";
+        } else {
+          currentPathDiv.style.display = "none";
+        }
+      }
+
+      function loadWidget(env, id) {
+        const existingScript = document.querySelector(
+          'script[src*="widget.yonderhq.com"]'
+        );
+        if (existingScript) {
+          existingScript.remove();
+        }
+
+        window.YONDER__CLIENT_CODE = id;
+
         let scriptUrl;
-
         switch (env) {
           case "dev":
             scriptUrl = "https://dev.widget.yonderhq.com/main.js";
@@ -143,44 +199,60 @@
         document.head.appendChild(script);
       }
 
-      document.addEventListener("DOMContentLoaded", function () {
-        validateEnvironment();
+      // Initialize the form with current values
+      function initializeForm() {
+        const env = getQueryParam("env");
+        const id = getQueryParam("id");
+        const subpath = getCurrentSubpath();
 
-        if (getQueryParam("env") && getQueryParam("id")) {
-          loadWidgetScript();
+        if (env) {
+          document.getElementById("env").value = env;
+        }
+
+        if (id) {
+          document.getElementById("id").value = id;
+        }
+
+        if (subpath) {
+          document.getElementById("subpath").value = subpath;
+        }
+
+        updatePathDisplay();
+
+        if (env && id) {
+          loadWidget(env, id);
+        }
+      }
+
+      window.addEventListener("popstate", function () {
+        initializeForm();
+      });
+
+      let isPageVisible = true;
+
+      document.addEventListener("visibilitychange", function () {
+        if (document.hidden) {
+          isPageVisible = false;
         }
       });
+
+      window.addEventListener("focus", function () {
+        if (!isPageVisible) {
+          const currentPath = window.location.pathname;
+          const basePath = "/customer-website-test";
+
+          if (currentPath !== basePath && currentPath !== basePath + "/") {
+            window.location.href = window.location.origin + basePath;
+          }
+          isPageVisible = true;
+        }
+      });
+
+      document.addEventListener("DOMContentLoaded", initializeForm);
+
+      document
+        .getElementById("subpath")
+        .addEventListener("input", updatePathDisplay);
     </script>
-  </head>
-  <body>
-    <div
-      style="
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 9999;
-      "
-    >
-      <button
-        onclick="window.location.href='yonderhq.html'"
-        style="
-          background: #007bff;
-          color: white;
-          border: none;
-          padding: 15px 30px;
-          border-radius: 8px;
-          cursor: pointer;
-          font-size: 16px;
-          font-weight: bold;
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-          transition: all 0.3s ease;
-        "
-        onmouseover="this.style.background='#0056b3'; this.style.transform='translate(-50%, -50%) scale(1.05)'"
-        onmouseout="this.style.background='#007bff'; this.style.transform='translate(-50%, -50%) scale(1)'"
-      >
-        Go to YonderHQ
-      </button>
-    </div>
   </body>
 </html>
