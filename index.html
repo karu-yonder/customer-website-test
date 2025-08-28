@@ -6,8 +6,6 @@
   </head>
   <body>
     <div class="control-panel">
-      <h3>Dynamic Subpath Tester</h3>
-
       <div class="form-group">
         <label for="env">Environment:</label>
         <select id="env">
@@ -17,12 +15,10 @@
           <option value="prod">prod</option>
         </select>
       </div>
-
       <div class="form-group">
         <label for="id">ID Parameter:</label>
         <input type="text" id="id" placeholder="Enter ID value..." />
       </div>
-
       <div class="form-group">
         <label for="subpath">Subpath:</label>
         <input
@@ -31,9 +27,7 @@
           placeholder="Enter subpath (e.g., about, products, contact)..."
         />
       </div>
-
       <button onclick="updatePath()">Update Chatbot</button>
-
       <div class="path-examples">
         <strong>Examples:</strong><br />
         • about → your-domain.com/about<br />
@@ -41,7 +35,6 @@
         • contact/support → your-domain.com/contact/support
       </div>
     </div>
-
     <script src="script.js"></script>
   </body>
 </html>
