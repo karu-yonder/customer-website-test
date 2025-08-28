@@ -144,11 +144,7 @@
         newPath +=
           "?env=" + encodeURIComponent(env) + "&id=" + encodeURIComponent(id);
 
-        window.history.pushState({}, "", newPath);
-
-        if (env && id) {
-          loadWidget(env, id);
-        }
+        window.location.href = newPath;
       }
 
       function updatePathDisplay() {
