@@ -60,7 +60,6 @@ function loadWidget(env, id) {
         existingScript.remove();
     }
 
-    // Set client code
     window.YONDER__CLIENT_CODE = id;
 
     // Determine script URL based on environment
