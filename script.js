@@ -140,6 +140,3 @@ window.addEventListener("focus", function () {
 
 // Initialize when page loads
 document.addEventListener("DOMContentLoaded", initializeForm);
-
-// Update when subpath input changes
-document.getElementById("subpath").addEventListener("input", updatePath);
